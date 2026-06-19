@@ -1,3 +1,12 @@
 README-INTERNAL.md
 tblogs
 trainings
+
+# Local reproduction environment and generated artifacts.
+.conda/
+lib/
+outputs/
+MUJOCO_LOG.TXT
+*.egg-info/
+__pycache__/
+*/__pycache__/

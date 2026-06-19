@@ -170,6 +170,7 @@ class ClothEnv_(object):
         df = pd.read_csv(self.model_kwargs_path)
 
         model_kwargs = copy.deepcopy(mujoco_model_kwargs.BASE_MODEL_KWARGS)
+        model_kwargs_row = None
 
         if randomize:
             choice = np.random.randint(0, df.shape[0] - 1)
@@ -178,17 +179,25 @@ class ClothEnv_(object):
         if rownum is not None:
             model_kwargs_row = df.iloc[rownum]
 
-        for col in model_kwargs.keys():
-            model_kwargs[col] = model_kwargs_row[col]
+        if model_kwargs_row is not None:
+            for col in model_kwargs.keys():
+                model_kwargs[col] = model_kwargs_row[col]
 
         return model_kwargs
 
     def build_xml_kwargs_and_numerical_values(self, randomize, rownum=None):
+        if rownum is None:
+            rownum = self.randomization_kwargs.get('model_kwargs_rownum')
         model_kwargs = self.get_model_kwargs(
             randomize=randomize, rownum=rownum)
 
+        custom_model_kwargs = self.randomization_kwargs.get(
+            'custom_model_kwargs', {})
+        for key, value in custom_model_kwargs.items():
+            model_kwargs[key] = value
+
         model_numerical_values = []
-        for key in model_kwargs.keys():
+        for key in mujoco_model_kwargs.BASE_MODEL_KWARGS.keys():
             value = model_kwargs[key]
             if type(value) in [int, float]:
                 model_numerical_values.append(value)
@@ -212,9 +221,23 @@ class ClothEnv_(object):
                                              ['fovy_range'][0] + self.randomization_kwargs['camera_config']['fovy_range'][1])/2
         model_kwargs['num_lights'] = 1
 
+        cloth_grid_count = int(self.randomization_kwargs.get(
+            'cloth_grid_count', 9))
+        if cloth_grid_count < 3 or cloth_grid_count % 2 == 0:
+            raise ValueError(
+                "cloth_grid_count must be an odd integer >= 3 so corners and center sites exist")
+        cloth_max_index = cloth_grid_count - 1
+        cloth_mid_index = int(cloth_max_index / 2)
+        model_kwargs['cloth_grid_count'] = cloth_grid_count
+        model_kwargs['skin_inflate'] = self.randomization_kwargs.get(
+            'skin_inflate', 0.001)
+        model_kwargs['skin_subgrid'] = int(self.randomization_kwargs.get(
+            'skin_subgrid', 3))
+        model_kwargs['geom_density'] = self.randomization_kwargs.get(
+            'geom_density', 1000.0)
         model_kwargs['geom_spacing'] = (
-            self.randomization_kwargs['cloth_size'] - 2*model_kwargs['geom_size']) / 8
-        model_kwargs['offset'] = 4 * model_kwargs['geom_spacing']
+            self.randomization_kwargs['cloth_size'] - 2*model_kwargs['geom_size']) / cloth_max_index
+        model_kwargs['offset'] = cloth_mid_index * model_kwargs['geom_spacing']
 
         # Appearance
         appearance_choices = mujoco_model_kwargs.appearance_kwarg_choices
@@ -231,10 +254,11 @@ class ClothEnv_(object):
                 self.randomization_kwargs['camera_config']['fovy_range'][0], self.randomization_kwargs['camera_config']['fovy_range'][1])
 
         min_corner = 0
-        max_corner = 8
+        max_corner = cloth_max_index
+        self.cloth_grid_count = cloth_grid_count
         self.max_corner_name = f"B{max_corner}_{max_corner}"
-        self.mid_corner_index = 4
-        mid = int(max_corner / 2)
+        self.mid_corner_index = cloth_mid_index
+        mid = self.mid_corner_index
         self.corner_index_mapping = {"0": f"S{min_corner}_{max_corner}", "1": f"S{max_corner}_{max_corner}",
                                      "2": f"S{min_corner}_{min_corner}", "3": f"S{max_corner}_{min_corner}"}
         self.cloth_site_names = []
@@ -245,7 +269,7 @@ class ClothEnv_(object):
 
         # TODO: remove side effects from methods,
         self.constraints = task_definitions.constraints["sideways"](
-            0, 4, 8, self.success_distance)
+            min_corner, mid, max_corner, self.success_distance)
 
         self.task_reward_function = reward_calculation.get_task_reward_function(
             self.constraints, self.single_goal_dim, self.sparse_dense, self.success_reward, self.fail_reward, self.extra_reward)
@@ -611,9 +635,10 @@ class ClothEnv_(object):
 
     def get_cloth_edge_positions_W(self):
         positions = dict()
-        for i in range(9):
-            for j in range(9):
-                if (i in [0, 8]) or (j in [0, 8]):
+        max_index = self.cloth_grid_count - 1
+        for i in range(self.cloth_grid_count):
+            for j in range(self.cloth_grid_count):
+                if (i in [0, max_index]) or (j in [0, max_index]):
                     site_name = f"S{i}_{j}"
                     positions[site_name] = self.sim.data.get_site_xpos(
                         site_name).copy()

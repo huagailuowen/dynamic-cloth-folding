@@ -106,14 +106,14 @@
             <geom name="la_tabla_vis" type="box" material="{{table_material_name}}" pos="0 0 0" size="0.3 0.3 0.13" group="1" />
         </body>
 
-        <composite type="grid" count="9 9 1" spacing="{{geom_spacing}}" offset="{{0.62288139 - offset }} {{0.13480165 - offset }} 0.1333164"  >
+        <composite type="grid" count="{{cloth_grid_count}} {{cloth_grid_count}} 1" spacing="{{geom_spacing}}" offset="{{0.62288139 - offset }} {{0.13480165 - offset }} 0.1333164"  >
             <joint kind="main" solimpfix="{{joint_solimp_low}} {{joint_solimp_high}} {{joint_solimp_width}}" solreffix="{{joint_solref_timeconst}} {{joint_solref_dampratio}}" />
             <tendon solimpfix="{{tendon_shear_solimp_low}} {{tendon_shear_solimp_high}} {{tendon_shear_solimp_width}}" solreffix="{{tendon_shear_solref_timeconst}} {{tendon_shear_solref_dampratio}}" width="0.001" kind="shear" />
             <tendon solimpfix="{{tendon_main_solimp_low}} {{tendon_main_solimp_high}} {{tendon_main_solimp_width}}" solreffix="{{tendon_main_solref_timeconst}} {{tendon_main_solref_dampratio}}" kind="main" />
             
-            <skin material="{{cloth_material_name}}" texcoord="true" inflate="0.001" subgrid="3"/>
+            <skin material="{{cloth_material_name}}" texcoord="true" inflate="{{skin_inflate}}" subgrid="{{skin_subgrid}}"/>
 
-            <geom group="0" type="sphere" size="{{ geom_size }}" rgba="0 0 1 0.8" friction='{{ friction }} {{ friction }} {{ friction }}' solimp="{{geom_solimp_low}} {{geom_solimp_high}} {{geom_solimp_width}}" solref="{{geom_solref_timeconst}} {{geom_solref_dampratio}}" condim='4' />
+            <geom group="0" type="sphere" size="{{ geom_size }}" density="{{geom_density}}" rgba="0 0 1 0.8" friction='{{ friction }} {{ friction }} {{ friction }}' solimp="{{geom_solimp_low}} {{geom_solimp_high}} {{geom_solimp_width}}" solref="{{geom_solref_timeconst}} {{geom_solref_dampratio}}" condim='4' />
         </composite>
 
         <body mocap="true" name="lookatbody" pos="0.49476399 0.00668401 0.13310541" />
