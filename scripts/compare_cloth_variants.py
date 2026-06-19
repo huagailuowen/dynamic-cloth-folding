@@ -82,9 +82,9 @@ def main():
     frames_dir.mkdir(parents=True, exist_ok=True)
     comparison_frames = []
     labels = {
-        "normal": "normal: 9x9 grid",
-        "light": "light: 9x9 grid, 1/10 density",
-        "stiff": "stiff: coarse 5x5 grid",
+        "normal": "normal: 18x18 grid",
+        "light": "light: 18x18 grid, 1/20 density",
+        "stiff": "stiff: coarse 4x4 grid",
     }
 
     for frame_idx in range(max_len):

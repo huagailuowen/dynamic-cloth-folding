@@ -223,9 +223,9 @@ class ClothEnv_(object):
 
         cloth_grid_count = int(self.randomization_kwargs.get(
             'cloth_grid_count', 9))
-        if cloth_grid_count < 3 or cloth_grid_count % 2 == 0:
+        if cloth_grid_count < 3:
             raise ValueError(
-                "cloth_grid_count must be an odd integer >= 3 so corners and center sites exist")
+                "cloth_grid_count must be an integer >= 3 so corners and middle-edge sites exist")
         cloth_max_index = cloth_grid_count - 1
         cloth_mid_index = int(cloth_max_index / 2)
         model_kwargs['cloth_grid_count'] = cloth_grid_count
@@ -237,7 +237,8 @@ class ClothEnv_(object):
             'geom_density', 1000.0)
         model_kwargs['geom_spacing'] = (
             self.randomization_kwargs['cloth_size'] - 2*model_kwargs['geom_size']) / cloth_max_index
-        model_kwargs['offset'] = cloth_mid_index * model_kwargs['geom_spacing']
+        model_kwargs['offset'] = (cloth_max_index *
+                                  model_kwargs['geom_spacing']) / 2
 
         # Appearance
         appearance_choices = mujoco_model_kwargs.appearance_kwarg_choices
