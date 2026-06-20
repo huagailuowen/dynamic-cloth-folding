@@ -82,7 +82,7 @@ def main():
     frames_dir.mkdir(parents=True, exist_ok=True)
     comparison_frames = []
     labels = {
-        "normal": "normal: 18x18 grid",
+        "normal": "normal: 9x9 grid",
         "light": "light: 18x18 grid, 1/20 density",
         "stiff": "stiff: coarse 4x4 grid",
     }

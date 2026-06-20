@@ -5,9 +5,9 @@ from copy import deepcopy
 
 CLOTH_VARIANTS = {
     "normal": {
-        "description": "Normal cloth: 18x18 MuJoCo composite grid.",
+        "description": "Normal cloth: 9x9 MuJoCo composite grid.",
         "model_kwargs_rownum": 0,
-        "cloth_grid_count": 18,
+        "cloth_grid_count": 9,
         "geom_density": 1000.0,
         "skin_inflate": 0.001,
         "skin_subgrid": 3,
@@ -29,6 +29,8 @@ CLOTH_VARIANTS = {
         "geom_density": 1000.0,
         "skin_inflate": 0.002,
         "skin_subgrid": 1,
+        "align_max_corner_to_grip": True,
+        "grip_corner_margin": 0.01,
         "custom_model_kwargs": {
             "geom_size": 0.004,
             "cone_type": "elliptic",
@@ -73,6 +75,10 @@ def apply_cloth_variant(variant, variant_name):
     randomization_kwargs["geom_density"] = preset["geom_density"]
     randomization_kwargs["skin_inflate"] = preset["skin_inflate"]
     randomization_kwargs["skin_subgrid"] = preset["skin_subgrid"]
+    randomization_kwargs["align_max_corner_to_grip"] = preset.get(
+        "align_max_corner_to_grip", False)
+    randomization_kwargs["grip_corner_margin"] = preset.get(
+        "grip_corner_margin", 0.01)
     randomization_kwargs["custom_model_kwargs"] = preset["custom_model_kwargs"]
     variant["cloth_variant"] = {
         "name": variant_name,

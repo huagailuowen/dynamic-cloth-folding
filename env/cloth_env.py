@@ -239,6 +239,16 @@ class ClothEnv_(object):
             self.randomization_kwargs['cloth_size'] - 2*model_kwargs['geom_size']) / cloth_max_index
         model_kwargs['offset'] = (cloth_max_index *
                                   model_kwargs['geom_spacing']) / 2
+        if self.randomization_kwargs.get('align_max_corner_to_grip', False):
+            grip_corner_margin = self.randomization_kwargs.get(
+                'grip_corner_margin', 0.01)
+            if cloth_grid_count % 2 == 0:
+                model_kwargs['offset'] = (
+                    (cloth_grid_count / 2 - 1) * model_kwargs['geom_spacing']
+                    + grip_corner_margin
+                )
+            else:
+                model_kwargs['offset'] += grip_corner_margin
 
         # Appearance
         appearance_choices = mujoco_model_kwargs.appearance_kwarg_choices
